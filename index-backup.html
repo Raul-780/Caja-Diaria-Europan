@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Caja Diaria Europan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Montserrat', system-ui, sans-serif; background: #f5f0eb; min-height: 100vh; }
+    #app { max-width: 480px; margin: 0 auto; }
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .header { background: #4a6741; padding: 18px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    .header-title .semi { font-weight: 600; font-size: 22px; color: #fff; }
+    .header-title .reg { font-weight: 400; font-size: 22px; color: #fff; }
+    .btn-back, .btn-hist, .btn-head { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); border-radius: 8px; font-size: 13px; color: #fff; cursor: pointer; padding: 7px 12px; font-weight: 600; font-family: inherit; }
+    .btn-head { font-size: 18px; padding: 7px 10px; }
+
+    .content { padding: 16px; }
+    .card { background: #fffdf9; border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); border: 1px solid #ddd5c8; }
+    .section-title { font-size: 12px; font-weight: 700; color: #7a6652; text-transform: uppercase; letter-spacing: 1px; margin: 16px 0 8px; }
+    label { font-size: 13px; color: #7a6652; font-weight: 600; display: block; margin-bottom: 6px; }
+    input { border: 1px solid #c9bfb2; border-radius: 8px; padding: 10px 12px; font-size: 15px; outline: none; width: 100%; color: #3b3229; background: #faf7f3; font-family: inherit; }
+    .row { display: flex; justify-content: space-between; align-items: center; }
+    .divider { border-top: 1px solid #e5ddd4; margin-top: 12px; padding-top: 12px; }
+    .lbl { font-size: 13px; color: #7a6652; font-weight: 600; }
+    .val { font-size: 14px; font-weight: 700; color: #3b3229; }
+    .subtle { font-size: 13px; color: #9e8e7e; }
+
+    .albaran-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+    .albaran-row input { flex: 1; }
+    .btn-remove { background: none; border: none; color: #c9bfb2; font-size: 18px; cursor: pointer; padding: 6px; flex-shrink: 0; }
+    .btn-add { margin-top: 10px; width: 100%; background: #eee8df; border: 1px dashed #c9bfb2; border-radius: 8px; padding: 10px; font-size: 14px; font-weight: 600; cursor: pointer; color: #5c4f42; font-family: inherit; }
+
+    .ef-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .ef-row .denom { width: 55px; font-size: 14px; font-weight: 600; color: #3b3229; flex-shrink: 0; }
+    .ef-row input { flex: 1; text-align: center; }
+    .ef-row .etotal { width: 70px; font-size: 13px; color: #9e8e7e; text-align: right; flex-shrink: 0; }
+    .subhead { font-size: 12px; color: #9e8e7e; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin: 14px 0 10px; }
+    .subhead:first-child { margin-top: 0; }
+
+    .result-card { border-radius: 14px; padding: 20px 16px; margin-bottom: 12px; text-align: center; border: 1px solid; }
+    .ok { background: #d6e8d0; color: #2d5a27; border-color: #b0cfa8; }
+    .err { background: #f5d6d6; color: #7a1e1e; border-color: #e0b0b0; }
+    .result-icon { font-size: 32px; margin-bottom: 6px; }
+    .result-text { font-size: 18px; font-weight: 700; }
+    .result-diff { font-size: 14px; margin-top: 4px; }
+
+    .btn-row { display: flex; gap: 10px; margin-bottom: 24px; }
+    .btn-primary { flex: 2; color: #fff; background: #4a6741; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background 0.3s; }
+    .btn-primary.saved { background: #5a8f50; }
+    .btn-primary:disabled { opacity: 0.7; }
+    .btn-secondary { flex: 1; background: #e8e0d5; color: #5c4f42; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+    .error-msg { background: #f5d6d6; color: #7a1e1e; font-weight: 600; padding: 12px 16px; border-radius: 10px; margin-bottom: 12px; font-size: 14px; }
+    .pill { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+    .pill-ok { background: #c8dfc2; color: #2d5a27; }
+    .pill-err { background: #f0d0d0; color: #7a1e1e; }
+    .btn-trash { background: none; border: none; font-size: 16px; cursor: pointer; color: #c9bfb2; padding: 4px; }
+    .hist-fecha { font-weight: 700; font-size: 15px; color: #3b3229; }
+    .hist-sub { font-size: 13px; color: #9e8e7e; margin-top: 2px; }
+    .hist-nota { font-size: 12px; color: #9e8e7e; margin-top: 2px; font-style: italic; }
+    .btn-load { margin-bottom: 12px; width: 100%; background: #eee8df; border: 1px solid #c9bfb2; border-radius: 8px; padding: 10px; font-size: 14px; font-weight: 600; cursor: pointer; color: #5c4f42; font-family: inherit; }
+    .empty { text-align: center; color: #9e8e7e; margin-top: 40px; font-style: italic; }
+    .confirm-card { background: #f5d6d6 !important; border-color: #e0b0b0 !important; text-align: center; }
+    .confirm-card p { font-weight: 700; color: #7a1e1e; margin-bottom: 12px; }
+    .detalle-badge { text-align: center; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 15px; margin: 12px 0 0; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <!-- VISTA CAJA -->
+  <div id="view-caja" class="view active">
+    <div class="header">
+      <div style="width:80px"></div>
+      <div class="header-title"><span class="semi">Caja Diaria </span><span class="reg">Europan</span></div>
+      <button class="btn-head btn-hist" onclick="showHistorial()">Historial</button>
+    </div>
+    <div class="content">
+      <div id="caja-error" class="error-msg" style="display:none"></div>
+      <div class="card">
+        <div style="display:flex;gap:10px;align-items:flex-end">
+          <div style="flex:1"><label>Fecha</label><input type="date" id="inp-fecha" /></div>
+          <div style="flex:2"><label>Notas</label><input type="text" id="inp-notas" placeholder="Observaciones..." /></div>
+        </div>
+      </div>
+      <div class="section-title">Albaranes</div>
+      <div class="card">
+        <div id="albaranes-list"></div>
+        <button class="btn-add" onclick="addAlbaran()">+ Añadir albarán</button>
+        <div class="row divider"><span class="lbl">Total albaranes</span><span class="val" id="total-albaranes">0,00 €</span></div>
+      </div>
+      <div class="section-title">Efectivo en caja</div>
+      <div class="card">
+        <div class="subhead">Billetes</div>
+        <div id="billetes-list"></div>
+        <div class="subhead">Monedas</div>
+        <div id="monedas-list"></div>
+        <div class="subhead">Bolsa sin contar</div>
+        <div class="ef-row">
+          <span class="denom">Importe</span>
+          <input type="number" min="0" inputmode="decimal" placeholder="0,00" id="inp-bolsa" oninput="updateTotals()" />
+          <span class="etotal" id="bolsa-total">0,00 €</span>
+        </div>
+        <div class="row divider"><span class="lbl">Total efectivo</span><span class="val" id="total-efectivo">0,00 €</span></div>
+      </div>
+      <div class="result-card ok" id="result-card">
+        <div class="result-icon" id="result-icon">✅</div>
+        <div class="result-text" id="result-text">Caja cuadrada</div>
+        <div class="result-diff" id="result-diff" style="display:none"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-secondary" onclick="resetForm()">Limpiar</button>
+        <button class="btn-primary" id="btn-guardar" onclick="guardar()">Guardar registro</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA HISTORIAL -->
+  <div id="view-historial" class="view">
+    <div class="header">
+      <button class="btn-back" onclick="showView('caja')">← Volver</button>
+      <div class="header-title"><span class="semi">Caja Diaria </span><span class="reg">Europan</span></div>
+      <button class="btn-head" onclick="showConfirmClear()">🗑</button>
+    </div>
+    <div class="content">
+      <div class="section-title">Historial de cierres</div>
+      <div id="hist-error" class="error-msg" style="display:none"></div>
+      <div id="confirm-clear" class="card confirm-card" style="display:none">
+        <p>¿Borrar todo el historial?</p>
+        <div class="btn-row">
+          <button class="btn-secondary" onclick="document.getElementById('confirm-clear').style.display='none'">Cancelar</button>
+          <button class="btn-primary" style="background:#c0392b" onclick="limpiarHistorial()">Borrar todo</button>
+        </div>
+      </div>
+      <button class="btn-load" id="btn-cargar" onclick="cargarHistorial()">🔄 Cargar historial</button>
+      <div id="historial-list"></div>
+    </div>
+  </div>
+
+  <!-- VISTA DETALLE -->
+  <div id="view-detalle" class="view">
+    <div class="header">
+      <button class="btn-back" onclick="showView('historial')">← Volver</button>
+      <div class="header-title"><span class="semi">Caja Diaria </span><span class="reg">Europan</span></div>
+      <div style="width:80px"></div>
+    </div>
+    <div class="content" id="detalle-content"></div>
+  </div>
+</div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbwmYtiE-KZtkESLmUAy1FMoijv9SOacUIgfIGw1xWXGYgLTPCWn2hgS-TcB8kBvoPk6/exec";
+const BILLETES = [500, 200, 100, 50, 20, 10, 5];
+const MONEDAS = [2, 1, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01];
+const fmt = n => parseFloat(n || 0).toFixed(2).replace(".", ",") + " €";
+
+let albaranes = [{ id: 1 }];
+let historial = [];
+
+function jsonp(url) {
+  return new Promise((resolve, reject) => {
+    const cb = "cb" + Date.now() + Math.floor(Math.random() * 10000);
+    const script = document.createElement("script");
+    const timer = setTimeout(() => { delete window[cb]; script.remove(); reject(new Error("Timeout")); }, 15000);
+    window[cb] = data => { clearTimeout(timer); delete window[cb]; script.remove(); resolve(data); };
+    script.onerror = () => { clearTimeout(timer); delete window[cb]; script.remove(); reject(new Error("Error de conexión")); };
+    script.src = url + (url.includes("?") ? "&" : "?") + "callback=" + cb;
+    document.head.appendChild(script);
+  });
+}
+const apiCall = body => jsonp(API + "?data=" + encodeURIComponent(JSON.stringify(body)));
+const apiGet = () => jsonp(API + "?dummy=1");
+
+// Init fecha
+document.getElementById("inp-fecha").value = new Date().toISOString().slice(0, 10);
+
+// Construir filas de billetes y monedas
+function buildEfectivoRows() {
+  const bl = document.getElementById("billetes-list");
+  const ml = document.getElementById("monedas-list");
+  BILLETES.forEach(v => bl.appendChild(makeEfRow(v)));
+  MONEDAS.forEach(v => ml.appendChild(makeEfRow(v)));
+}
+function makeEfRow(v) {
+  const div = document.createElement("div");
+  div.className = "ef-row";
+  div.id = "ef-row-" + v;
+  div.innerHTML = `<span class="denom">${v} €</span>
+    <input type="number" min="0" inputmode="numeric" placeholder="0" id="ef-${v}" oninput="updateTotals()" />
+    <span class="etotal" id="eft-${v}">0,00 €</span>`;
+  return div;
+}
+buildEfectivoRows();
+
+// Albaranes
+function renderAlbaranes() {
+  const list = document.getElementById("albaranes-list");
+  // Guardar valores actuales antes de re-renderizar
+  const vals = {};
+  albaranes.forEach(a => {
+    const ni = document.getElementById("alb-num-" + a.id);
+    const ii = document.getElementById("alb-imp-" + a.id);
+    if (ni) vals[a.id] = { num: ni.value, importe: ii.value };
+  });
+  list.innerHTML = "";
+  albaranes.forEach((a, i) => {
+    const div = document.createElement("div");
+    div.className = "albaran-row";
+    div.innerHTML = `<input type="text" placeholder="Concepto" id="alb-num-${a.id}" />
+      <input type="text" placeholder="Importe €" id="alb-imp-${a.id}" inputmode="decimal" oninput="updateTotals()" />
+      <button class="btn-remove" onclick="removeAlbaran(${a.id})">✕</button>`;
+    list.appendChild(div);
+    if (vals[a.id]) {
+      document.getElementById("alb-num-" + a.id).value = vals[a.id].num;
+      document.getElementById("alb-imp-" + a.id).value = vals[a.id].importe;
+    }
+  });
+  updateTotals();
+}
+
+function addAlbaran() {
+  albaranes.push({ id: Date.now() });
+  renderAlbaranes();
+  // Foco en el nuevo campo concepto
+  const last = albaranes[albaranes.length - 1];
+  setTimeout(() => { const el = document.getElementById("alb-num-" + last.id); if (el) el.focus(); }, 50);
+}
+
+function removeAlbaran(id) {
+  if (albaranes.length > 1) {
+    albaranes = albaranes.filter(a => a.id !== id);
+    renderAlbaranes();
+  }
+}
+
+function getTotalAlbaranes() {
+  return albaranes.reduce((s, a) => {
+    const el = document.getElementById("alb-imp-" + a.id);
+    return s + (parseFloat(el ? el.value.replace(",", ".") : 0) || 0);
+  }, 0);
+}
+
+function getTotalEfectivo() {
+  let t = BILLETES.concat(MONEDAS).reduce((s, v) => {
+    const el = document.getElementById("ef-" + v);
+    return s + v * (parseInt(el ? el.value : 0) || 0);
+  }, 0);
+  const bolsa = parseFloat(document.getElementById("inp-bolsa").value) || 0;
+  return t + bolsa;
+}
+
+function updateTotals() {
+  const ta = getTotalAlbaranes();
+  const te = getTotalEfectivo();
+  const df = te - ta;
+  const ok = Math.abs(df) < 0.005;
+
+  document.getElementById("total-albaranes").textContent = fmt(ta);
+  document.getElementById("total-efectivo").textContent = fmt(te);
+
+  BILLETES.concat(MONEDAS).forEach(v => {
+    const el = document.getElementById("ef-" + v);
+    const tel = document.getElementById("eft-" + v);
+    if (el && tel) tel.textContent = fmt(v * (parseInt(el.value) || 0));
+  });
+  const bolsa = parseFloat(document.getElementById("inp-bolsa").value) || 0;
+  document.getElementById("bolsa-total").textContent = fmt(bolsa);
+
+  const rc = document.getElementById("result-card");
+  const ri = document.getElementById("result-icon");
+  const rt = document.getElementById("result-text");
+  const rd = document.getElementById("result-diff");
+  rc.className = "result-card " + (ok || df > 0 ? "ok" : "err");
+  ri.textContent = ok || df > 0 ? "✅" : "❌";
+  rt.textContent = ok ? "Caja cuadrada" : df > 0 ? "Sobra dinero" : "Falta dinero";
+  if (!ok) {
+    rd.style.display = "block";
+    rd.textContent = "Diferencia: " + (df > 0 ? "+" : "") + fmt(df);
+  } else {
+    rd.style.display = "none";
+  }
+}
+
+function resetForm() {
+  document.getElementById("inp-fecha").value = new Date().toISOString().slice(0, 10);
+  document.getElementById("inp-notas").value = "";
+  document.getElementById("inp-bolsa").value = "";
+  albaranes = [{ id: Date.now() }];
+  renderAlbaranes();
+  BILLETES.concat(MONEDAS).forEach(v => {
+    const el = document.getElementById("ef-" + v);
+    if (el) el.value = "";
+  });
+  updateTotals();
+  setError("caja", "");
+}
+
+async function guardar() {
+  const btn = document.getElementById("btn-guardar");
+  btn.disabled = true;
+  btn.textContent = "Guardando...";
+  setError("caja", "");
+
+  const albData = albaranes.map(a => ({
+    num: (document.getElementById("alb-num-" + a.id) || {}).value || "",
+    importe: (document.getElementById("alb-imp-" + a.id) || {}).value || ""
+  })).filter(a => a.importe);
+
+  const efData = {};
+  BILLETES.concat(MONEDAS).forEach(v => {
+    const el = document.getElementById("ef-" + v);
+    efData[v] = el ? el.value : "";
+  });
+
+  const ta = getTotalAlbaranes();
+  const te = getTotalEfectivo();
+  const df = te - ta;
+
+  const registro = {
+    action: "save",
+    ts: Date.now(),
+    fecha: document.getElementById("inp-fecha").value,
+    notas: document.getElementById("inp-notas").value || "",
+    bolsa: document.getElementById("inp-bolsa").value || "",
+    albaranes: albData,
+    efectivo: efData,
+    totalAlbaranes: ta,
+    totalEfectivo: te,
+    diferencia: df,
+    cuadra: Math.abs(df) < 0.005
+  };
+
+  try {
+    await apiCall(registro);
+    btn.textContent = "✓ Guardado";
+    btn.classList.add("saved");
+    setTimeout(() => { btn.textContent = "Guardar registro"; btn.classList.remove("saved"); btn.disabled = false; }, 2000);
+  } catch(e) {
+    setError("caja", "Error al guardar: " + e.message);
+    btn.textContent = "Guardar registro";
+    btn.disabled = false;
+  }
+}
+
+async function cargarHistorial() {
+  const btn = document.getElementById("btn-cargar");
+  btn.textContent = "Cargando...";
+  btn.disabled = true;
+  setError("hist", "");
+  try {
+    const data = await apiGet();
+    historial = (data.rows || [])
+      .filter(r => r[0] && r[1])
+      .map(r => ({
+        ts: r[0], fecha: r[1], notas: r[2] || "",
+        totalAlbaranes: parseFloat(r[3]) || 0,
+        totalEfectivo: parseFloat(r[4]) || 0,
+        diferencia: parseFloat(r[5]) || 0,
+        cuadra: r[6] === true || r[6] === "true" || r[6] === "TRUE",
+        albaranes: typeof r[7] === "string" ? JSON.parse(r[7]) : [],
+        efectivo: typeof r[8] === "string" ? JSON.parse(r[8]) : {},
+        bolsa: r[9] || ""
+      })).reverse();
+    renderHistorialList();
+  } catch(e) {
+    setError("hist", "Error al cargar: " + e.message);
+  }
+  btn.textContent = "🔄 Cargar historial";
+  btn.disabled = false;
+}
+
+function renderHistorialList() {
+  const list = document.getElementById("historial-list");
+  if (historial.length === 0) {
+    list.innerHTML = '<div class="empty">No hay registros guardados</div>';
+    return;
+  }
+  list.innerHTML = historial.map((r, i) => {
+    const ok = r.cuadra || r.diferencia > 0;
+    const pillText = r.cuadra ? "Cuadra" : r.diferencia > 0 ? ("+" + fmt(r.diferencia)) : fmt(r.diferencia);
+    return `<div class="card">
+      <div class="row">
+        <div style="flex:1;cursor:pointer" onclick="showDetalle(${i})">
+          <div class="hist-fecha">${r.fecha}</div>
+          <div class="hist-sub">${r.albaranes.length} albarán${r.albaranes.length!==1?"es":""} · ${fmt(r.totalAlbaranes)}</div>
+          ${r.notas ? `<div class="hist-nota">"${r.notas}"</div>` : ""}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="pill ${ok?"pill-ok":"pill-err"}">${pillText}</span>
+          <button class="btn-trash" onclick="eliminarRegistro('${r.ts}')">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+async function eliminarRegistro(ts) {
+  try {
+    await apiCall({ action: "delete", ts });
+    historial = historial.filter(r => String(r.ts) !== String(ts));
+    renderHistorialList();
+  } catch(e) {
+    setError("hist", "Error al eliminar: " + e.message);
+  }
+}
+
+function showConfirmClear() {
+  document.getElementById("confirm-clear").style.display = "block";
+}
+
+async function limpiarHistorial() {
+  try {
+    await apiCall({ action: "deleteAll" });
+    historial = [];
+    renderHistorialList();
+    document.getElementById("confirm-clear").style.display = "none";
+  } catch(e) {
+    setError("hist", "Error al limpiar: " + e.message);
+  }
+}
+
+function showDetalle(i) {
+  const r = historial[i];
+  const ok = r.cuadra || r.diferencia > 0;
+  const resMsg = r.cuadra ? "Caja cuadrada" : r.diferencia > 0 ? ("Sobra: +" + fmt(r.diferencia)) : ("Falta: " + fmt(r.diferencia));
+
+  const efItems = BILLETES.concat(MONEDAS).map(v => {
+    const cant = parseInt(r.efectivo[v]) || 0;
+    if (!cant) return "";
+    return `<div class="row" style="margin-bottom:6px">
+      <span class="lbl">${v >= 5 ? "Billete" : "Moneda"} ${v} € × ${cant}</span>
+      <span class="val">${fmt(v * cant)}</span>
+    </div>`;
+  }).join("");
+
+  document.getElementById("detalle-content").innerHTML = `
+    <div class="card">
+      <div class="row"><span class="lbl">Fecha</span><span class="val">${r.fecha}</span></div>
+      ${r.notas ? `<div class="row" style="margin-top:8px"><span class="lbl">Notas</span><span class="val">${r.notas}</span></div>` : ""}
+      <div class="detalle-badge ${ok?"ok":"err"}">${resMsg}</div>
+    </div>
+    <div class="card">
+      <div class="row"><span class="lbl">Total albaranes</span><span class="val">${fmt(r.totalAlbaranes)}</span></div>
+      <div class="row" style="margin-top:8px"><span class="lbl">Total efectivo</span><span class="val">${fmt(r.totalEfectivo)}</span></div>
+    </div>
+    <div class="section-title">Albaranes</div>
+    <div class="card">
+      ${r.albaranes.map((a, j) => `<div class="row" style="margin-bottom:6px">
+        <span class="lbl">${a.num || "Albarán " + (j+1)}</span>
+        <span class="val">${fmt(parseFloat(a.importe.replace(",",".")) || 0)}</span>
+      </div>`).join("")}
+    </div>
+    <div class="section-title">Efectivo</div>
+    <div class="card">
+      ${efItems}
+      ${r.bolsa && parseFloat(r.bolsa) > 0 ? `<div class="row divider"><span class="lbl">Bolsa sin contar</span><span class="val">${fmt(r.bolsa)}</span></div>` : ""}
+    </div>`;
+  showView("detalle");
+}
+
+function showView(name) {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.getElementById("view-" + name).classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+function showHistorial() {
+  showView("historial");
+  cargarHistorial();
+}
+
+function setError(zone, msg) {
+  const el = document.getElementById(zone + "-error");
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = msg ? "block" : "none";
+}
+
+// Init
+renderAlbaranes();
+updateTotals();
+</script>
+</body>
+</html>
