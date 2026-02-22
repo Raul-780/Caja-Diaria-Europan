@@ -1,0 +1,11 @@
+{
+  "name": "Caja Diaria Europan",
+  "short_name": "Caja Europan",
+  "start_url": "/caja-diaria/",
+  "display": "standalone",
+  "background_color": "#f5f0eb",
+  "theme_color": "#4a6741",
+  "icons": [
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
