@@ -22,12 +22,12 @@
     .card { background: #fffdf9; border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); border: 1px solid #ddd5c8; }
     .section-title { font-size: 12px; font-weight: 700; color: #7a6652; text-transform: uppercase; letter-spacing: 1px; margin: 16px 0 8px; }
     label { font-size: 13px; color: #7a6652; font-weight: 600; display: block; margin-bottom: 6px; }
-    input { border: 1px solid #c9bfb2; border-radius: 8px; padding: 10px 12px; font-size: 15px; outline: none; width: 100%; color: #3b3229; background: #faf7f3; font-family: inherit; }
+    input, textarea { border: 1px solid #c9bfb2; border-radius: 8px; padding: 10px 12px; font-size: 15px; outline: none; width: 100%; color: #3b3229; background: #faf7f3; font-family: inherit; }
+    textarea { resize: none; font-size: 13px; }
     .row { display: flex; justify-content: space-between; align-items: center; }
     .divider { border-top: 1px solid #e5ddd4; margin-top: 12px; padding-top: 12px; }
     .lbl { font-size: 13px; color: #7a6652; font-weight: 600; }
     .val { font-size: 14px; font-weight: 700; color: #3b3229; }
-    .subtle { font-size: 13px; color: #9e8e7e; }
 
     .albaran-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
     .albaran-row input { flex: 1; }
@@ -53,8 +53,11 @@
     .btn-primary.saved { background: #5a8f50; }
     .btn-primary:disabled { opacity: 0.7; }
     .btn-secondary { flex: 1; background: #e8e0d5; color: #5c4f42; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-full { width: 100%; background: #4a6741; color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 8px; }
+    .btn-full.secondary { background: #e8e0d5; color: #5c4f42; margin-top: 10px; }
 
     .error-msg { background: #f5d6d6; color: #7a1e1e; font-weight: 600; padding: 12px 16px; border-radius: 10px; margin-bottom: 12px; font-size: 14px; }
+    .success-msg { background: #d6e8d0; color: #2d5a27; font-weight: 600; padding: 12px 16px; border-radius: 10px; margin-bottom: 12px; font-size: 14px; }
     .pill { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
     .pill-ok { background: #c8dfc2; color: #2d5a27; }
     .pill-err { background: #f0d0d0; color: #7a1e1e; }
@@ -67,16 +70,133 @@
     .confirm-card { background: #f5d6d6 !important; border-color: #e0b0b0 !important; text-align: center; }
     .confirm-card p { font-weight: 700; color: #7a1e1e; margin-bottom: 12px; }
     .detalle-badge { text-align: center; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 15px; margin: 12px 0 0; }
+
+    /* SETUP */
+    .setup-hero { background: #4a6741; padding: 40px 24px 30px; text-align: center; }
+    .setup-hero h1 .semi { font-weight: 600; font-size: 26px; color: #fff; }
+    .setup-hero h1 .reg { font-weight: 400; font-size: 26px; color: #fff; }
+    .setup-hero p { color: rgba(255,255,255,0.85); font-size: 14px; margin-top: 10px; line-height: 1.5; }
+    .setup-step { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 18px; }
+    .step-num { background: #4a6741; color: #fff; font-weight: 700; font-size: 15px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .step-body { flex: 1; }
+    .step-body strong { font-size: 14px; color: #3b3229; display: block; margin-bottom: 4px; }
+    .step-body p { font-size: 13px; color: #7a6652; line-height: 1.5; }
+    .step-body .code-block { background: #f0ebe4; border: 1px solid #c9bfb2; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #3b3229; margin-top: 8px; font-family: monospace; white-space: pre-wrap; word-break: break-all; }
+    .step-body .copy-btn { margin-top: 6px; background: #eee8df; border: 1px solid #c9bfb2; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; color: #5c4f42; font-family: inherit; }
+    .url-input-wrap { margin-top: 8px; }
+    .url-input-wrap input { font-size: 13px; }
+    .separator { height: 1px; background: #e5ddd4; margin: 6px 0 18px; }
   </style>
 </head>
 <body>
 <div id="app">
+
+  <!-- VISTA SETUP -->
+  <div id="view-setup" class="view">
+    <div class="setup-hero">
+      <h1><span class="semi">Caja Diaria </span><span class="reg">Europan</span></h1>
+      <p>Antes de empezar necesitas configurar tu hoja de Google Sheets para guardar los registros. Sigue estos pasos, son sencillos.</p>
+    </div>
+    <div class="content">
+      <div id="setup-error" class="error-msg" style="display:none"></div>
+      <div id="setup-success" class="success-msg" style="display:none"></div>
+
+      <div class="card">
+        <div class="setup-step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Crea una hoja de cálculo en Google</strong>
+            <p>Ve a <strong>sheets.google.com</strong>, inicia sesión con tu cuenta de Google y crea una hoja nueva. Puedes llamarla "Caja Diaria".</p>
+          </div>
+        </div>
+        <div class="separator"></div>
+        <div class="setup-step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Abre el editor de scripts</strong>
+            <p>En la hoja que acabas de crear, pulsa en el menú <strong>Extensiones → Apps Script</strong>. Se abrirá una nueva pestaña con un editor.</p>
+          </div>
+        </div>
+        <div class="separator"></div>
+        <div class="setup-step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Pega el código</strong>
+            <p>Borra todo el texto que aparece en el editor y pega este código:</p>
+            <div class="code-block" id="script-code">function doGet(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const callback = e.parameter.callback || "";
+  let result;
+  if (e.parameter.data) {
+    const data = JSON.parse(e.parameter.data);
+    if (data.action === "save") {
+      sheet.appendRow([data.ts, "'" + data.fecha, data.notas,
+        data.totalAlbaranes, data.totalEfectivo, data.diferencia,
+        data.cuadra, JSON.stringify(data.albaranes),
+        JSON.stringify(data.efectivo), data.bolsa]);
+      result = {ok: true};
+    } else if (data.action === "delete") {
+      const rows = sheet.getDataRange().getValues();
+      for (let i = 0; i < rows.length; i++) {
+        if (String(rows[i][0]) === String(data.ts)) { sheet.deleteRow(i+1); break; }
+      }
+      result = {ok: true};
+    } else if (data.action === "deleteAll") {
+      sheet.clearContents();
+      result = {ok: true};
+    }
+  } else {
+    const rows = sheet.getDataRange().getValues();
+    result = {rows};
+  }
+  const json = JSON.stringify(result);
+  const output = callback ? callback + "(" + json + ")" : json;
+  return ContentService.createTextOutput(output)
+    .setMimeType(callback ? ContentService.MimeType.JAVASCRIPT : ContentService.MimeType.JSON);
+}</div>
+            <button class="copy-btn" onclick="copyScript()">📋 Copiar código</button>
+          </div>
+        </div>
+        <div class="separator"></div>
+        <div class="setup-step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Guarda y publica el script</strong>
+            <p>1. Pulsa el icono 💾 o <strong>Ctrl+S</strong> para guardar.<br><br>
+            2. Pulsa <strong>Implementar → Nueva implementación</strong>.<br><br>
+            3. Pulsa el engranaje ⚙️ y elige <strong>Aplicación web</strong>.<br><br>
+            4. En "Ejecutar como" elige <strong>Yo</strong>.<br><br>
+            5. En "Quién tiene acceso" elige <strong>Cualquier persona</strong>.<br><br>
+            6. Pulsa <strong>Implementar</strong> y acepta los permisos que pida Google.<br><br>
+            7. Copia la <strong>URL de la aplicación web</strong> que aparece.</p>
+          </div>
+        </div>
+        <div class="separator"></div>
+        <div class="setup-step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>Pega aquí la URL que has copiado</strong>
+            <div class="url-input-wrap">
+              <input type="url" id="inp-api-url" placeholder="https://script.google.com/macros/s/..." />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-full" onclick="guardarConfig()">Guardar configuración y empezar</button>
+      <button class="btn-full secondary" id="btn-skip-setup" style="display:none" onclick="showView('caja')">Cancelar y volver a la app</button>
+    </div>
+  </div>
+
   <!-- VISTA CAJA -->
-  <div id="view-caja" class="view active">
+  <div id="view-caja" class="view">
     <div class="header">
       <div style="width:80px"></div>
       <div class="header-title"><span class="semi">Caja Diaria </span><span class="reg">Europan</span></div>
-      <button class="btn-head btn-hist" onclick="showHistorial()">Historial</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn-head" onclick="showAjustes()" title="Ajustes">⚙️</button>
+        <button class="btn-head btn-hist" onclick="showHistorial()">Historial</button>
+      </div>
     </div>
     <div class="content">
       <div id="caja-error" class="error-msg" style="display:none"></div>
@@ -118,6 +238,27 @@
     </div>
   </div>
 
+  <!-- VISTA AJUSTES -->
+  <div id="view-ajustes" class="view">
+    <div class="header">
+      <button class="btn-back" onclick="showView('caja')">← Volver</button>
+      <div class="header-title"><span class="semi">Ajustes</span></div>
+      <div style="width:80px"></div>
+    </div>
+    <div class="content">
+      <div class="section-title">Conexión con Google Sheets</div>
+      <div class="card">
+        <label>URL del script de Google</label>
+        <input type="url" id="inp-api-url-ajustes" placeholder="https://script.google.com/macros/s/..." style="margin-top:6px" />
+        <p style="font-size:12px;color:#9e8e7e;margin-top:8px;line-height:1.5">Si necesitas cambiar la hoja de Google Sheets, pega aquí la nueva URL del script y pulsa Guardar.</p>
+      </div>
+      <div id="ajustes-error" class="error-msg" style="display:none"></div>
+      <div id="ajustes-success" class="success-msg" style="display:none"></div>
+      <button class="btn-full" onclick="guardarAjustes()">Guardar</button>
+      <button class="btn-full secondary" onclick="showView('caja')">Cancelar</button>
+    </div>
+  </div>
+
   <!-- VISTA HISTORIAL -->
   <div id="view-historial" class="view">
     <div class="header">
@@ -135,7 +276,6 @@
           <button class="btn-primary" style="background:#c0392b" onclick="limpiarHistorial()">Borrar todo</button>
         </div>
       </div>
-      <button class="btn-load" id="btn-cargar" onclick="cargarHistorial()">🔄 Cargar historial</button>
       <div id="historial-list"></div>
     </div>
   </div>
@@ -152,11 +292,12 @@
 </div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbwmYtiE-KZtkESLmUAy1FMoijv9SOacUIgfIGw1xWXGYgLTPCWn2hgS-TcB8kBvoPk6/exec";
 const BILLETES = [500, 200, 100, 50, 20, 10, 5];
 const MONEDAS = [2, 1, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01];
 const fmt = n => parseFloat(n || 0).toFixed(2).replace(".", ",") + " €";
+const STORAGE_KEY = "caja_api_url";
 
+let API = localStorage.getItem(STORAGE_KEY) || "";
 let albaranes = [{ id: 1 }];
 let historial = [];
 
@@ -164,9 +305,9 @@ function jsonp(url) {
   return new Promise((resolve, reject) => {
     const cb = "cb" + Date.now() + Math.floor(Math.random() * 10000);
     const script = document.createElement("script");
-    const timer = setTimeout(() => { delete window[cb]; script.remove(); reject(new Error("Timeout")); }, 15000);
+    const timer = setTimeout(() => { delete window[cb]; script.remove(); reject(new Error("Timeout — comprueba la URL")); }, 15000);
     window[cb] = data => { clearTimeout(timer); delete window[cb]; script.remove(); resolve(data); };
-    script.onerror = () => { clearTimeout(timer); delete window[cb]; script.remove(); reject(new Error("Error de conexión")); };
+    script.onerror = () => { clearTimeout(timer); delete window[cb]; script.remove(); reject(new Error("No se puede conectar — comprueba la URL")); };
     script.src = url + (url.includes("?") ? "&" : "?") + "callback=" + cb;
     document.head.appendChild(script);
   });
@@ -174,10 +315,18 @@ function jsonp(url) {
 const apiCall = body => jsonp(API + "?data=" + encodeURIComponent(JSON.stringify(body)));
 const apiGet = () => jsonp(API + "?dummy=1");
 
-// Init fecha
+// INIT
 document.getElementById("inp-fecha").value = new Date().toISOString().slice(0, 10);
+buildEfectivoRows();
+renderAlbaranes();
+updateTotals();
 
-// Construir filas de billetes y monedas
+if (!API) {
+  showView("setup");
+} else {
+  showView("caja");
+}
+
 function buildEfectivoRows() {
   const bl = document.getElementById("billetes-list");
   const ml = document.getElementById("monedas-list");
@@ -187,18 +336,14 @@ function buildEfectivoRows() {
 function makeEfRow(v) {
   const div = document.createElement("div");
   div.className = "ef-row";
-  div.id = "ef-row-" + v;
   div.innerHTML = `<span class="denom">${v} €</span>
     <input type="number" min="0" inputmode="numeric" placeholder="0" id="ef-${v}" oninput="updateTotals()" />
     <span class="etotal" id="eft-${v}">0,00 €</span>`;
   return div;
 }
-buildEfectivoRows();
 
-// Albaranes
 function renderAlbaranes() {
   const list = document.getElementById("albaranes-list");
-  // Guardar valores actuales antes de re-renderizar
   const vals = {};
   albaranes.forEach(a => {
     const ni = document.getElementById("alb-num-" + a.id);
@@ -206,7 +351,7 @@ function renderAlbaranes() {
     if (ni) vals[a.id] = { num: ni.value, importe: ii.value };
   });
   list.innerHTML = "";
-  albaranes.forEach((a, i) => {
+  albaranes.forEach(a => {
     const div = document.createElement("div");
     div.className = "albaran-row";
     div.innerHTML = `<input type="text" placeholder="Concepto" id="alb-num-${a.id}" />
@@ -224,16 +369,10 @@ function renderAlbaranes() {
 function addAlbaran() {
   albaranes.push({ id: Date.now() });
   renderAlbaranes();
-  // Foco en el nuevo campo concepto
-  const last = albaranes[albaranes.length - 1];
-  setTimeout(() => { const el = document.getElementById("alb-num-" + last.id); if (el) el.focus(); }, 50);
+  setTimeout(() => { const el = document.getElementById("alb-num-" + albaranes[albaranes.length-1].id); if (el) el.focus(); }, 50);
 }
-
 function removeAlbaran(id) {
-  if (albaranes.length > 1) {
-    albaranes = albaranes.filter(a => a.id !== id);
-    renderAlbaranes();
-  }
+  if (albaranes.length > 1) { albaranes = albaranes.filter(a => a.id !== id); renderAlbaranes(); }
 }
 
 function getTotalAlbaranes() {
@@ -242,46 +381,30 @@ function getTotalAlbaranes() {
     return s + (parseFloat(el ? el.value.replace(",", ".") : 0) || 0);
   }, 0);
 }
-
 function getTotalEfectivo() {
   let t = BILLETES.concat(MONEDAS).reduce((s, v) => {
     const el = document.getElementById("ef-" + v);
     return s + v * (parseInt(el ? el.value : 0) || 0);
   }, 0);
-  const bolsa = parseFloat(document.getElementById("inp-bolsa").value) || 0;
-  return t + bolsa;
+  return t + (parseFloat(document.getElementById("inp-bolsa").value) || 0);
 }
 
 function updateTotals() {
-  const ta = getTotalAlbaranes();
-  const te = getTotalEfectivo();
-  const df = te - ta;
-  const ok = Math.abs(df) < 0.005;
-
+  const ta = getTotalAlbaranes(), te = getTotalEfectivo(), df = te - ta, ok = Math.abs(df) < 0.005;
   document.getElementById("total-albaranes").textContent = fmt(ta);
   document.getElementById("total-efectivo").textContent = fmt(te);
-
   BILLETES.concat(MONEDAS).forEach(v => {
-    const el = document.getElementById("ef-" + v);
-    const tel = document.getElementById("eft-" + v);
+    const el = document.getElementById("ef-" + v), tel = document.getElementById("eft-" + v);
     if (el && tel) tel.textContent = fmt(v * (parseInt(el.value) || 0));
   });
-  const bolsa = parseFloat(document.getElementById("inp-bolsa").value) || 0;
-  document.getElementById("bolsa-total").textContent = fmt(bolsa);
-
+  document.getElementById("bolsa-total").textContent = fmt(parseFloat(document.getElementById("inp-bolsa").value) || 0);
   const rc = document.getElementById("result-card");
-  const ri = document.getElementById("result-icon");
-  const rt = document.getElementById("result-text");
-  const rd = document.getElementById("result-diff");
   rc.className = "result-card " + (ok || df > 0 ? "ok" : "err");
-  ri.textContent = ok || df > 0 ? "✅" : "❌";
-  rt.textContent = ok ? "Caja cuadrada" : df > 0 ? "Sobra dinero" : "Falta dinero";
-  if (!ok) {
-    rd.style.display = "block";
-    rd.textContent = "Diferencia: " + (df > 0 ? "+" : "") + fmt(df);
-  } else {
-    rd.style.display = "none";
-  }
+  document.getElementById("result-icon").textContent = ok || df > 0 ? "✅" : "❌";
+  document.getElementById("result-text").textContent = ok ? "Caja cuadrada" : df > 0 ? "Sobra dinero" : "Falta dinero";
+  const rd = document.getElementById("result-diff");
+  if (!ok) { rd.style.display = "block"; rd.textContent = "Diferencia: " + (df > 0 ? "+" : "") + fmt(df); }
+  else rd.style.display = "none";
 }
 
 function resetForm() {
@@ -290,110 +413,78 @@ function resetForm() {
   document.getElementById("inp-bolsa").value = "";
   albaranes = [{ id: Date.now() }];
   renderAlbaranes();
-  BILLETES.concat(MONEDAS).forEach(v => {
-    const el = document.getElementById("ef-" + v);
-    if (el) el.value = "";
-  });
+  BILLETES.concat(MONEDAS).forEach(v => { const el = document.getElementById("ef-" + v); if (el) el.value = ""; });
   updateTotals();
-  setError("caja", "");
+  setMsg("caja-error", "", false);
 }
 
 async function guardar() {
   const btn = document.getElementById("btn-guardar");
-  btn.disabled = true;
-  btn.textContent = "Guardando...";
-  setError("caja", "");
-
+  btn.disabled = true; btn.textContent = "Guardando...";
+  setMsg("caja-error", "", false);
   const albData = albaranes.map(a => ({
     num: (document.getElementById("alb-num-" + a.id) || {}).value || "",
     importe: (document.getElementById("alb-imp-" + a.id) || {}).value || ""
   })).filter(a => a.importe);
-
   const efData = {};
-  BILLETES.concat(MONEDAS).forEach(v => {
-    const el = document.getElementById("ef-" + v);
-    efData[v] = el ? el.value : "";
-  });
-
-  const ta = getTotalAlbaranes();
-  const te = getTotalEfectivo();
-  const df = te - ta;
-
+  BILLETES.concat(MONEDAS).forEach(v => { const el = document.getElementById("ef-" + v); efData[v] = el ? el.value : ""; });
+  const ta = getTotalAlbaranes(), te = getTotalEfectivo(), df = te - ta;
   const registro = {
-    action: "save",
-    ts: Date.now(),
+    action: "save", ts: Date.now(),
     fecha: document.getElementById("inp-fecha").value,
     notas: document.getElementById("inp-notas").value || "",
     bolsa: document.getElementById("inp-bolsa").value || "",
-    albaranes: albData,
-    efectivo: efData,
-    totalAlbaranes: ta,
-    totalEfectivo: te,
-    diferencia: df,
-    cuadra: Math.abs(df) < 0.005
+    albaranes: albData, efectivo: efData,
+    totalAlbaranes: ta, totalEfectivo: te, diferencia: df, cuadra: Math.abs(df) < 0.005
   };
-
   try {
     await apiCall(registro);
-    btn.textContent = "✓ Guardado";
-    btn.classList.add("saved");
+    btn.textContent = "✓ Guardado"; btn.classList.add("saved");
     setTimeout(() => { btn.textContent = "Guardar registro"; btn.classList.remove("saved"); btn.disabled = false; }, 2000);
   } catch(e) {
-    setError("caja", "Error al guardar: " + e.message);
-    btn.textContent = "Guardar registro";
-    btn.disabled = false;
+    setMsg("caja-error", "Error al guardar: " + e.message, true);
+    btn.textContent = "Guardar registro"; btn.disabled = false;
   }
 }
 
 async function cargarHistorial() {
-  const btn = document.getElementById("btn-cargar");
-  btn.textContent = "Cargando...";
-  btn.disabled = true;
-  setError("hist", "");
+  setMsg("hist-error", "", false);
+  document.getElementById("historial-list").innerHTML = '<div class="empty">Cargando...</div>';
   try {
     const data = await apiGet();
-    historial = (data.rows || [])
-      .filter(r => r[0] && r[1])
-      .map(r => ({
-        ts: r[0], fecha: r[1], notas: r[2] || "",
-        totalAlbaranes: parseFloat(r[3]) || 0,
-        totalEfectivo: parseFloat(r[4]) || 0,
-        diferencia: parseFloat(r[5]) || 0,
-        cuadra: r[6] === true || r[6] === "true" || r[6] === "TRUE",
-        albaranes: typeof r[7] === "string" ? JSON.parse(r[7]) : [],
-        efectivo: typeof r[8] === "string" ? JSON.parse(r[8]) : {},
-        bolsa: r[9] || ""
-      })).reverse();
+    historial = (data.rows || []).filter(r => r[0] && r[1]).map(r => ({
+      ts: r[0], fecha: r[1], notas: r[2] || "",
+      totalAlbaranes: parseFloat(r[3]) || 0, totalEfectivo: parseFloat(r[4]) || 0,
+      diferencia: parseFloat(r[5]) || 0,
+      cuadra: r[6] === true || r[6] === "true" || r[6] === "TRUE",
+      albaranes: typeof r[7] === "string" ? JSON.parse(r[7]) : [],
+      efectivo: typeof r[8] === "string" ? JSON.parse(r[8]) : {},
+      bolsa: r[9] || ""
+    })).reverse();
     renderHistorialList();
   } catch(e) {
-    setError("hist", "Error al cargar: " + e.message);
+    setMsg("hist-error", "Error al cargar: " + e.message, true);
+    document.getElementById("historial-list").innerHTML = "";
   }
-  btn.textContent = "🔄 Cargar historial";
-  btn.disabled = false;
 }
 
 function renderHistorialList() {
   const list = document.getElementById("historial-list");
-  if (historial.length === 0) {
-    list.innerHTML = '<div class="empty">No hay registros guardados</div>';
-    return;
-  }
+  if (historial.length === 0) { list.innerHTML = '<div class="empty">No hay registros guardados</div>'; return; }
   list.innerHTML = historial.map((r, i) => {
     const ok = r.cuadra || r.diferencia > 0;
     const pillText = r.cuadra ? "Cuadra" : r.diferencia > 0 ? ("+" + fmt(r.diferencia)) : fmt(r.diferencia);
-    return `<div class="card">
-      <div class="row">
-        <div style="flex:1;cursor:pointer" onclick="showDetalle(${i})">
-          <div class="hist-fecha">${r.fecha}</div>
-          <div class="hist-sub">${r.albaranes.length} albarán${r.albaranes.length!==1?"es":""} · ${fmt(r.totalAlbaranes)}</div>
-          ${r.notas ? `<div class="hist-nota">"${r.notas}"</div>` : ""}
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="pill ${ok?"pill-ok":"pill-err"}">${pillText}</span>
-          <button class="btn-trash" onclick="eliminarRegistro('${r.ts}')">🗑</button>
-        </div>
+    return `<div class="card"><div class="row">
+      <div style="flex:1;cursor:pointer" onclick="showDetalle(${i})">
+        <div class="hist-fecha">${r.fecha}</div>
+        <div class="hist-sub">${r.albaranes.length} albarán${r.albaranes.length!==1?"es":""} · ${fmt(r.totalAlbaranes)}</div>
+        ${r.notas ? `<div class="hist-nota">"${r.notas}"</div>` : ""}
       </div>
-    </div>`;
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="pill ${ok?"pill-ok":"pill-err"}">${pillText}</span>
+        <button class="btn-trash" onclick="eliminarRegistro('${r.ts}')">🗑</button>
+      </div>
+    </div></div>`;
   }).join("");
 }
 
@@ -402,40 +493,28 @@ async function eliminarRegistro(ts) {
     await apiCall({ action: "delete", ts });
     historial = historial.filter(r => String(r.ts) !== String(ts));
     renderHistorialList();
-  } catch(e) {
-    setError("hist", "Error al eliminar: " + e.message);
-  }
+  } catch(e) { setMsg("hist-error", "Error al eliminar: " + e.message, true); }
 }
 
-function showConfirmClear() {
-  document.getElementById("confirm-clear").style.display = "block";
-}
+function showConfirmClear() { document.getElementById("confirm-clear").style.display = "block"; }
 
 async function limpiarHistorial() {
   try {
     await apiCall({ action: "deleteAll" });
-    historial = [];
-    renderHistorialList();
+    historial = []; renderHistorialList();
     document.getElementById("confirm-clear").style.display = "none";
-  } catch(e) {
-    setError("hist", "Error al limpiar: " + e.message);
-  }
+  } catch(e) { setMsg("hist-error", "Error al limpiar: " + e.message, true); }
 }
 
 function showDetalle(i) {
   const r = historial[i];
   const ok = r.cuadra || r.diferencia > 0;
   const resMsg = r.cuadra ? "Caja cuadrada" : r.diferencia > 0 ? ("Sobra: +" + fmt(r.diferencia)) : ("Falta: " + fmt(r.diferencia));
-
   const efItems = BILLETES.concat(MONEDAS).map(v => {
     const cant = parseInt(r.efectivo[v]) || 0;
     if (!cant) return "";
-    return `<div class="row" style="margin-bottom:6px">
-      <span class="lbl">${v >= 5 ? "Billete" : "Moneda"} ${v} € × ${cant}</span>
-      <span class="val">${fmt(v * cant)}</span>
-    </div>`;
+    return `<div class="row" style="margin-bottom:6px"><span class="lbl">${v >= 5 ? "Billete" : "Moneda"} ${v} € × ${cant}</span><span class="val">${fmt(v * cant)}</span></div>`;
   }).join("");
-
   document.getElementById("detalle-content").innerHTML = `
     <div class="card">
       <div class="row"><span class="lbl">Fecha</span><span class="val">${r.fecha}</span></div>
@@ -447,41 +526,112 @@ function showDetalle(i) {
       <div class="row" style="margin-top:8px"><span class="lbl">Total efectivo</span><span class="val">${fmt(r.totalEfectivo)}</span></div>
     </div>
     <div class="section-title">Albaranes</div>
-    <div class="card">
-      ${r.albaranes.map((a, j) => `<div class="row" style="margin-bottom:6px">
-        <span class="lbl">${a.num || "Albarán " + (j+1)}</span>
-        <span class="val">${fmt(parseFloat(a.importe.replace(",",".")) || 0)}</span>
-      </div>`).join("")}
-    </div>
+    <div class="card">${r.albaranes.map((a,j) => `<div class="row" style="margin-bottom:6px"><span class="lbl">${a.num||"Albarán "+(j+1)}</span><span class="val">${fmt(parseFloat(a.importe.replace(",",".")) || 0)}</span></div>`).join("")}</div>
     <div class="section-title">Efectivo</div>
-    <div class="card">
-      ${efItems}
-      ${r.bolsa && parseFloat(r.bolsa) > 0 ? `<div class="row divider"><span class="lbl">Bolsa sin contar</span><span class="val">${fmt(r.bolsa)}</span></div>` : ""}
-    </div>`;
+    <div class="card">${efItems}${r.bolsa && parseFloat(r.bolsa) > 0 ? `<div class="row divider"><span class="lbl">Bolsa sin contar</span><span class="val">${fmt(r.bolsa)}</span></div>` : ""}</div>`;
   showView("detalle");
+}
+
+// CONFIGURACIÓN
+function guardarConfig() {
+  const url = document.getElementById("inp-api-url").value.trim();
+  if (!url || !url.startsWith("https://script.google.com")) {
+    setMsg("setup-error", "La URL no parece correcta. Debe empezar por https://script.google.com", true);
+    return;
+  }
+  API = url;
+  localStorage.setItem(STORAGE_KEY, url);
+  setMsg("setup-success", "✓ Configuración guardada correctamente", false);
+  setTimeout(() => showView("caja"), 1200);
+}
+
+function showAjustes() {
+  document.getElementById("inp-api-url-ajustes").value = API;
+  setMsg("ajustes-error", "", false);
+  setMsg("ajustes-success", "", false);
+  showView("ajustes");
+}
+
+function guardarAjustes() {
+  const url = document.getElementById("inp-api-url-ajustes").value.trim();
+  if (!url || !url.startsWith("https://script.google.com")) {
+    setMsg("ajustes-error", "La URL no parece correcta. Debe empezar por https://script.google.com", true);
+    return;
+  }
+  API = url;
+  localStorage.setItem(STORAGE_KEY, url);
+  setMsg("ajustes-success", "✓ URL guardada correctamente", false);
+  setTimeout(() => showView("caja"), 1200);
+}
+
+const SCRIPT_CODE = `function doGet(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const callback = e.parameter.callback || "";
+  let result;
+  if (e.parameter.data) {
+    const data = JSON.parse(e.parameter.data);
+    if (data.action === "save") {
+      sheet.appendRow([data.ts, "'" + data.fecha, data.notas,
+        data.totalAlbaranes, data.totalEfectivo, data.diferencia,
+        data.cuadra, JSON.stringify(data.albaranes),
+        JSON.stringify(data.efectivo), data.bolsa]);
+      result = {ok: true};
+    } else if (data.action === "delete") {
+      const rows = sheet.getDataRange().getValues();
+      for (let i = 0; i < rows.length; i++) {
+        if (String(rows[i][0]) === String(data.ts)) { sheet.deleteRow(i+1); break; }
+      }
+      result = {ok: true};
+    } else if (data.action === "deleteAll") {
+      sheet.clearContents();
+      result = {ok: true};
+    }
+  } else {
+    const rows = sheet.getDataRange().getValues();
+    result = {rows};
+  }
+  const json = JSON.stringify(result);
+  const output = callback ? callback + "(" + json + ")" : json;
+  return ContentService.createTextOutput(output)
+    .setMimeType(callback ? ContentService.MimeType.JAVASCRIPT : ContentService.MimeType.JSON);
+}`;
+
+function copyScript() {
+  const ta = document.createElement("textarea");
+  ta.value = SCRIPT_CODE;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand("copy");
+    const btn = document.querySelector(".copy-btn");
+    btn.textContent = "✓ Copiado";
+    setTimeout(() => btn.textContent = "📋 Copiar código", 2000);
+  } catch(e) {
+    alert("No se pudo copiar automáticamente. Mantén pulsado el código para copiarlo manualmente.");
+  }
+  document.body.removeChild(ta);
 }
 
 function showView(name) {
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   document.getElementById("view-" + name).classList.add("active");
   window.scrollTo(0, 0);
+  if (name === "historial") cargarHistorial();
+  if (name === "setup" && API) document.getElementById("btn-skip-setup").style.display = "block";
 }
 
-function showHistorial() {
-  showView("historial");
-  cargarHistorial();
-}
+function showHistorial() { showView("historial"); }
 
-function setError(zone, msg) {
-  const el = document.getElementById(zone + "-error");
+function setMsg(id, msg, isError) {
+  const el = document.getElementById(id);
   if (!el) return;
   el.textContent = msg;
   el.style.display = msg ? "block" : "none";
+  if (!isError) { el.className = "success-msg"; } else { el.className = "error-msg"; }
 }
-
-// Init
-renderAlbaranes();
-updateTotals();
 </script>
 </body>
 </html>
